@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 const Form = () => {
     const [userRegistration, setuserRegistration] = useState({
@@ -7,34 +7,51 @@ const Form = () => {
         role: "",
         password: ""
     });
-    const [userRecord, setuserRecord] = useState([]);
+
+    const [userRecord, setuserRecord] = useState(null);
+
+    useEffect(() => {
+        debugger;
+        let list = JSON.parse(localStorage.getItem('list'));
+        setuserRecord(list);
+
+    },[])
 
     const handleInput = (e) => {
         const name = e.target.name;
         const value = e.target.value;
         setuserRegistration({ ...userRegistration, [name]: value })
     }
-   const onDelete =(ind)=> {
-        let xyz= this.newRecord;
-        xyz.splice(ind,1);
-        setuserRecord({newRecord:xyz})
+    const onDelete = (ind) => {
+        debugger;
+        let xyz = userRecord;
+        xyz.splice(ind, 1);
+        setuserRecord(xyz);
+    }
+    const onEdit = (username, email, role, password) => {
+        debugger;
+        setuserRecord({
+            username: username,
+            email: email,
+            role: role,
+            password: password
+        })
+        localStorage.setItem("list", JSON.stringify(userRecord));
     }
     const handleSubmit = (e) => {
         e.preventDefault();
         debugger;
         var newRecord = { ...userRegistration }
         setuserRecord([...userRecord, newRecord])
-        console.log(userRecord);
+        // console.log(userRecord);
         setuserRegistration({ username: "", email: "", role: "", password: "" });
-        if(localStorage.getItem('list')!=null)
-        {
+        if (localStorage.getItem('list') != null) {
             newRecord = JSON.parse(localStorage.getItem('list'));
             var list = { username: e.target.username.value, email: e.target.email.value, role: e.target.role.value, password: e.target.password.value };
             newRecord.push(list);
             localStorage.setItem("list", JSON.stringify(newRecord));
         }
-        else
-        {
+        else {
             localStorage.setItem("list", JSON.stringify([newRecord]));
         }
     }
@@ -71,9 +88,8 @@ const Form = () => {
                         <th>Delete</th>
                     </tr>
                 </thead>
-
                 {
-                    userRecord.map((curElement) => {
+                    userRecord !== null && userRecord.length > 0 && userRecord?.map((curElement) => {
                         return (
                             <tbody>
                                 <tr>
@@ -81,8 +97,8 @@ const Form = () => {
                                     <td>{curElement.email}</td>
                                     <td>{curElement.role}</td>
                                     <td>{curElement.password}</td>
-                                    <td><button className='btn btn-success'>Edit</button></td>
-                                    <td><button className='btn btn-danger' onClick={() =>this.onDelete(curElement.email)}>Delete</button></td>
+                                    <td><button className='btn btn-success' onClick={() => onEdit(curElement.email, curElement.username, curElement.role, curElement.password)}>Edit</button></td>
+                                    <td><button className='btn btn-danger' onClick={() => onDelete(curElement.email)}>Delete</button></td>
                                 </tr>
                             </tbody>
                         )
@@ -90,8 +106,6 @@ const Form = () => {
                 }
             </table>
         </div>
-
     )
 }
-
 export default Form
